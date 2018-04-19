@@ -1,0 +1,33 @@
+{
+   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+   "contentVersion": "1.0.0.0",
+   "parameters": {
+      "hostingPlanName": {
+         "value": ""
+      },
+      "skuName": {
+         "value": "F1"
+      },
+      "skuCapacity": {
+         "value": "1"
+      },
+      "SqlDBEdition": {
+         "value": "Basic"
+      },
+      "SqlDBRequestedServiceObjectiveName": {
+         "value": "Basic"
+      },
+      "sqlPassword": {
+         "value": ""
+      },
+      "tenantName": {
+         "value": ""
+      },
+      "appId": {
+         "value": ""
+      },
+      "appSecret": {
+         "value": ""
+      }
+   }
+}

@@ -1,0 +1,180 @@
+body {
+    padding-top: 70px;
+    padding-bottom: 20px;
+}
+
+/* Set padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Override the default bootstrap behavior where horizontal description lists 
+   will truncate terms that are too long to fit in the left column 
+*/
+.dl-horizontal dt {
+    white-space: normal;
+}
+
+/* Set width on the form input elements since they're 100% wide by default */
+input,
+label,
+select,
+textarea {
+  max-width: none;
+  vertical-align: middle;
+}
+
+td,tr {
+    padding: 5px;
+}
+
+ul.dropdown-menu span.glyphicon {
+    margin-right:8px;
+}
+ul.dropdown-menu li a {
+    padding:6px 40px 6px 13px;
+}
+
+div.form-group button.btn, div.form-group a.btn, div.form-group input.btn {
+    width: 140px;
+}
+div.notes {
+    font-size:.9em;
+    display:none;
+}
+label {
+    cursor:pointer;
+}
+.glyphicon.glyphicon-aad-true {
+    background-image: url('/content/images/AADIcon_18.png');
+    background-repeat:no-repeat;
+    display:inline-block;
+    width:18px;
+    height:18px;
+}
+.glyphicon.glyphicon-aad-false {
+    background-image: url('/content/images/AADIcon_18_bw.png');
+    background-repeat:no-repeat;
+    display:inline-block;
+    width:18px;
+    height:18px;
+}
+
+.bg-rowEdit {
+  color: #4a4a4a;
+  background-color: #fff;
+}
+.bg-rowEdit:hover,
+.bg-rowEdit:focus {
+  background-color: #cecccc;
+}
+span.helpIcon {
+    background-image: url(/Content/images/help.png);
+    background-repeat: no-repeat;
+    display:inline-block;
+    width:10px;
+    height:10px;
+    cursor:pointer;
+}
+label.addHelp:after{
+    content:"";
+    padding: 2px!important;
+    margin-left:2px;
+    display:inline-block;
+    width:10px;
+    height:10px;
+    position: relative;
+    cursor:pointer;
+    background-image: url(/Content/images/help.png);
+    background-repeat: no-repeat;
+}
+.tooltip .tooltip-inner, .tooltip .tooltip-arrow {
+    border-top-color: #5a5a5a;
+}
+.tooltip-inner {
+    padding:8px;
+    max-width:500px;
+    text-align:left;
+}
+button.btn.control {
+    width:80px!important;
+    font-size:.9em;
+}
+.form-group.control {
+    border-bottom:1px solid #cacaca;
+    margin-top:-10px;
+    padding-bottom:8px;
+}
+span.form-control label.addHelp {
+    padding-top:2px!important;
+}
+
+.glyphicon-refresh-animate {
+    -animation: spin .7s infinite linear;
+    -webkit-animation: spin2 .7s infinite linear;
+}
+
+@-webkit-keyframes spin2 {
+    from {
+        -webkit-transform: rotate(0deg);
+    }
+
+    to {
+        -webkit-transform: rotate(360deg);
+    }
+}
+.ui-loader {
+    font-size: 1.3em;
+    padding-top:0;
+    padding-left:0;
+    margin-top:15px;
+    margin-right:-6px;
+    display:inline-block;   
+    color:#efefef;
+    float:right;
+}
+#collapsedLoader {
+    visibility:hidden;
+}
+
+#expandedLoader {
+    visibility:hidden;
+    display:inline-block;
+}
+
+@media (max-width: 768px) {
+    #loaderWrapper {
+        position: absolute !important;
+        top: 0;
+        margin-top:-20px;
+        display:block!important;
+        right: 75px;
+    }
+    #collapsedLoader {
+        display: inline-block;
+        margin-right:10px;
+        visibility:visible;
+    }
+
+    #expandedLoader {
+        display: none;
+        visibility:hidden;
+    }
+}
+
+@media (min-width: 769px) {
+    #collapsedLoader {
+        display: none;
+        visibility: hidden;
+    }
+
+    #expandedLoader {
+        display: inline-block;
+        visibility: visible;
+    }
+}
+
+.loginForm .row {
+	margin-top:18px;
+}
