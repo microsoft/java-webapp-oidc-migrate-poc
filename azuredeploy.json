@@ -1,0 +1,242 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "hostingPlanName": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "Name of the hosting plan to use in Azure."
+      }
+    },
+    "skuName": {
+      "type": "string",
+      "defaultValue": "B1",
+      "allowedValues": [
+        "F1",
+        "D1",
+        "B1",
+        "B2",
+        "B3",
+        "S1",
+        "S2",
+        "S3",
+        "P1",
+        "P2",
+        "P3",
+        "P4"
+      ],
+      "metadata": {
+        "description": "Describes plan's pricing tier and instance size. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/"
+      }
+    },
+    "skuCapacity": {
+      "type": "int",
+      "defaultValue": 1,
+      "minValue": 1,
+      "metadata": {
+        "description": "Describes plan's instance count"
+      }
+    },
+    "SqlDBEdition": {
+      "type": "string",
+      "defaultValue": "Basic",
+      "allowedValues": [ "Basic", "Standard", "Premium" ],
+      "metadata": {
+        "description": "Select the performance characteristics for your SQL Database instance"
+      }
+    },
+    "SqlDBRequestedServiceObjectiveName": {
+      "type": "string",
+      "defaultValue": "Basic",
+      "allowedValues": [ "Basic", "S0", "S1", "S2", "P1", "P2", "P3" ],
+      "metadata": {
+        "description": "Describes the performance level for Edition"
+      }
+    },
+    "sqlPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "SQL database app password"
+      }
+    },
+    "tenantName": {
+      "type": "string",
+      "metadata": {
+        "description": "The tenant name, like 'contoso.onmicrosoft.com', for your application in Azure AD (see docs)"
+      }
+    },
+    "appId": {
+      "type": "string",
+      "metadata": {
+        "description": "The app ID for your application in Azure AD (see docs)"
+      }
+    },
+    "appSecret": {
+      "type": "string",
+      "metadata": {
+        "description": "The app secret for your application in Azure AD (see docs)"
+      }
+    }
+  },
+  "variables": {
+    "websiteName": "[concat(parameters('hostingPlanName'), uniqueString(resourceGroup().Id))]",
+    "repoUrl": "https://github.com/Microsoft/java-webapp-oidc-migrate-poc.git",
+    "branch": "master",
+    "sqlserverName": "[toLower(concat(parameters('hostingPlanName'), 'sqlsrv'))]",
+    "DBCollation": "SQL_Latin1_General_CP1_CS_AS",
+    "DBName": "[concat(parameters('hostingPlanName'), 'db')]",
+    "sqlAppLogin": "[concat(parameters('hostingPlanName'), '_app')]"
+  },
+  "resources": [
+    {
+      "name": "[variables('sqlserverName')]",
+      "type": "Microsoft.Sql/servers",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2014-04-01-preview",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "SQLServer"
+      },
+      "properties": {
+        "administratorLogin": "[variables('sqlAppLogin')]",
+        "administratorLoginPassword": "[parameters('sqlPassword')]"
+      },
+      "resources": [
+        {
+          "name": "[variables('DBName')]",
+          "type": "databases",
+          "location": "[resourceGroup().location]",
+          "apiVersion": "2014-04-01-preview",
+          "dependsOn": [
+            "[resourceId('Microsoft.Sql/servers', variables('sqlserverName'))]"
+          ],
+          "tags": {
+            "displayName": "Database"
+          },
+          "properties": {
+            "collation": "[variables('DBCollation')]",
+            "edition": "[parameters('SqlDBEdition')]",
+            "maxSizeBytes": "1073741824",
+            "requestedServiceObjectiveName": "[parameters('SqlDBRequestedServiceObjectiveName')]"
+          }
+        }
+      ]
+    },
+    {
+      "name": "[concat(variables('sqlserverName'), '/AllowAllWindowsAzureIps')]",
+      "type": "Microsoft.Sql/servers/firewallRules",
+      "apiVersion": "2014-04-01-preview",
+      "location": "[resourceGroup().location]",
+      "kind": "v12.0",
+      "properties": {
+        "startIpAddress": "0.0.0.0",
+        "endIpAddress": "0.0.0.0"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', variables('sqlserverName'))]"
+      ]
+    },
+    {
+      "apiVersion": "2015-08-01",
+      "name": "[parameters('hostingPlanName')]",
+      "type": "Microsoft.Web/serverfarms",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "HostingPlan"
+      },
+      "sku": {
+        "name": "[parameters('skuName')]",
+        "capacity": "[parameters('skuCapacity')]"
+      },
+      "properties": {
+        "name": "[parameters('hostingPlanName')]"
+      }
+    },
+    {
+      "apiVersion": "2015-08-01",
+      "name": "[variables('webSiteName')]",
+      "type": "Microsoft.Web/sites",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]": "Resource",
+        "displayName": "Website"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]"
+      ],
+      "properties": {
+        "name": "[variables('webSiteName')]",
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName'))]"
+      },
+      "resources": [
+        {
+          "apiVersion": "2015-08-01",
+          "name": "web",
+          "type": "sourcecontrols",
+          "tags": {
+            "displayName": "AppSource"
+          },
+          "dependsOn": [
+            "[concat('Microsoft.Web/Sites/', variables('webSiteName'))]",
+            "[concat('Microsoft.Web/Sites/', variables('webSiteName'), '/config/web')]",
+            "[concat('Microsoft.Web/Sites/', variables('webSiteName'), '/config/appsettings')]",
+            "[concat('Microsoft.Sql/Servers/', variables('sqlserverName'), '/firewallRules/AllowAllWindowsAzureIps')]",
+            "[concat('Microsoft.Sql/Servers/', variables('sqlserverName'), '/databases/', variables('DBName'))]"
+          ],
+          "properties": {
+            "repoUrl": "[variables('repoUrl')]",
+            "branch": "[variables('branch')]",
+            "IsManualIntegration": true
+          }
+        },
+        {
+          "apiVersion": "2015-08-01",
+          "name": "web",
+          "type": "config",
+          "tags": {
+            "displayName": "AppConfig"
+          },
+          "dependsOn": [
+            "[concat('Microsoft.Web/sites/', variables('webSiteName'))]"
+          ],
+          "properties": {
+            "javaVersion": "1.8",
+            "javaContainer": "TOMCAT",
+            "javaContainerVersion": "8.5"
+          }
+        },
+        {
+          "name": "appsettings",
+          "type": "config",
+          "apiVersion": "2015-08-01",
+          "dependsOn": [
+            "[concat('Microsoft.Web/sites/', variables('webSiteName'))]",
+            "[resourceId('Microsoft.Sql/servers', variables('sqlserverName'))]"
+          ],
+          "tags": {
+            "displayName": "WebSettings"
+          },
+          "properties": {
+            "SCM_COMMAND_IDLE_TIMEOUT": 240,
+            "authority": "https://login.microsoftonline.com/",
+            "tenant": "[parameters('tenantName')]",
+            "db_host": "[reference(concat('Microsoft.Sql/servers/', variables('sqlserverName'))).fullyQualifiedDomainName]",
+            "db_name": "[variables('DBName')]",
+            "db_user": "[variables('sqlAppLogin')]",
+            "db_password": "[parameters('sqlPassword')]",
+            "client_id": "[parameters('appId')]",
+            "secret_key": "[parameters('appSecret')]",
+            "require_ssl": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "webUrl": {
+      "type": "string",
+      "value": "[concat('https://', variables('webSiteName'), '.azurewebsites.net')]"
+    }
+  }
+}

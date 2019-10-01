@@ -1,0 +1,39 @@
+/****** Object:  Table [dbo].[Thing]    Script Date: 4/5/2018 9:48:20 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Thing](
+	[ThingId] [int] IDENTITY(1,1) NOT NULL,
+	[UserId] [int] NOT NULL,
+	[Thing] [nvarchar](50) NULL,
+ CONSTRAINT [PK_Thing] PRIMARY KEY CLUSTERED 
+(
+	[ThingId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[User]    Script Date: 4/5/2018 9:48:20 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[User](
+	[UserId] [int] IDENTITY(1,1) NOT NULL,
+	[Email] [nvarchar](100) NOT NULL,
+	[UniqueId] [nvarchar](100) NULL,
+	[FName] [nvarchar](50) NULL,
+	[LName] [nvarchar](50) NULL,
+	[Password] [nvarchar](20) NULL,
+ CONSTRAINT [PK_User] PRIMARY KEY CLUSTERED 
+(
+	[UserId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[Thing]  WITH CHECK ADD  CONSTRAINT [FK_Thing_User] FOREIGN KEY([UserId])
+REFERENCES [dbo].[User] ([UserId])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[Thing] CHECK CONSTRAINT [FK_Thing_User]
+GO
